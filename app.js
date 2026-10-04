@@ -8,13 +8,11 @@ const paths={damage:'M3 3h4v15H3zM10 3h4v15h-4zM17 3h4v15h-4zM3 20h4v3H3zM10 20h
 const defaultLeftLogo=new Image();
 defaultLeftLogo.src='images/ossanwatch.png';
 defaultLeftLogo.alt='Ossan Watch チームアイコン';
-const state={players:defaults.map((name,i)=>({name,video:({tank:'JunkerQueen',damage:'may',support:'ana2'})[roles[i%5]],role:roles[i%5]})),left:{name:'Ossan Watch',score:0,logo:defaultLeftLogo},right:{name:'team 2',score:1,logo:null}};
+const state={players:defaults.map((name,i)=>({name,video:({tank:'JunkerQueen',damage:null,support:null})[roles[i%5]],role:roles[i%5]})),left:{name:'Ossan Watch',score:0,logo:defaultLeftLogo},right:{name:'team 2',score:1,logo:null}};
 let noticeTimer;
 function notify(message){$('#notice').textContent=message;$('#notice').classList.add('visible');clearTimeout(noticeTimer);noticeTimer=setTimeout(()=>$('#notice').classList.remove('visible'),4500)}
 // 動画の追加: media/に「id.mp4」を置き、この一覧にroles付きで1行追加します。
 const videoChoices = [
-  {id:'ana2', label:'ana2.mp4', roles:['support']},
-  {id:'may', label:'may.mp4', roles:['damage']},
   {id:'domina', label:'domina.mp4', roles:['tank']},
   {id:'DVa', label:'DVa.mp4', roles:['tank']},
   {id:'Hazard', label:'Hazard.mp4', roles:['tank']},
@@ -27,16 +25,57 @@ const videoChoices = [
   {id:'Winston', label:'Winston.mp4', roles:['tank']},
   {id:'WreckingBall', label:'WreckingBall.mp4', roles:['tank']},
   {id:'Zarya', label:'Zarya.mp4', roles:['tank']},
+  {id:'Doomfist', label:'Doomfist.mp4', roles:['tank']},
+  {id:'Mauga', label:'Mauga.mp4', roles:['tank']},
+  {id:'Anran', label:'Anran.mp4', roles:['damage']},
+  {id:'Ashe', label:'Ashe.mp4', roles:['damage']},
+  {id:'Bastion', label:'Bastion.mp4', roles:['damage']},
+  {id:'Cassidy', label:'Cassidy.mp4', roles:['damage']},
+  {id:'Echo', label:'Echo.mp4', roles:['damage']},
+  {id:'Emre', label:'Emre.mp4', roles:['damage']},
+  {id:'Freja', label:'Freja.mp4', roles:['damage']},
+  {id:'Genji', label:'Genji.mp4', roles:['damage']},
+  {id:'Hanzo', label:'Hanzo.mp4', roles:['damage']},
+  {id:'Junkrat', label:'Junkrat.mp4', roles:['damage']},
+  {id:'Mei', label:'Mei.mp4', roles:['damage']},
+  {id:'Pharah', label:'Pharah.mp4', roles:['damage']},
+  {id:'Reaper', label:'Reaper.mp4', roles:['damage']},
+  {id:'Shion', label:'Shion.mp4', roles:['damage']},
+  {id:'Sierra', label:'Sierra.mp4', roles:['damage']},
+  {id:'Sojourn', label:'Sojourn.mp4', roles:['damage']},
+  {id:'Soldier76', label:'Soldier76.mp4', roles:['damage']},
+  {id:'Sombra', label:'Sombra.mp4', roles:['damage']},
+  {id:'Symmetra', label:'Symmetra.mp4', roles:['damage']},
+  {id:'Torbjorn', label:'Torbjorn.mp4', roles:['damage']},
+  {id:'Tracer', label:'Tracer.mp4', roles:['damage']},
+  {id:'Vendetta', label:'Vendetta.mp4', roles:['damage']},
+  {id:'Venture', label:'Venture.mp4', roles:['damage']},
+  {id:'Widowmaker', label:'Widowmaker.mp4', roles:['damage']},
+  {id:'Ana', label:'Ana.mp4', roles:['support']},
+  {id:'Baptiste', label:'Baptiste.mp4', roles:['support']},
+  {id:'Brigitte', label:'Brigitte.mp4', roles:['support']},
+  {id:'Illari', label:'Illari.mp4', roles:['support']},
+  {id:'JetpackCat', label:'JetpackCat.mp4', roles:['support']},
+  {id:'Juno', label:'Juno.mp4', roles:['support']},
+  {id:'Kiriko', label:'Kiriko.mp4', roles:['support']},
+  {id:'Lifeweaver', label:'Lifeweaver.mp4', roles:['support']},
+  {id:'Lucio', label:'Lucio.mp4', roles:['support']},
+  {id:'Mercy', label:'Mercy.mp4', roles:['support']},
+  {id:'Mizuki', label:'Mizuki.mp4', roles:['support']},
+  {id:'Moira', label:'Moira.mp4', roles:['support']},
+  {id:'Wuyang', label:'Wuyang.mp4', roles:['support']},
+  {id:'Zenyatta', label:'Zenyatta.mp4', roles:['support']},
 ];
 function choicesForRole(role){return videoChoices.filter(v=>v.roles.includes(role))}
 function ensureRoleVideo(player){
   const choices=choicesForRole(player.role);
-  if(!choices.some(v=>v.id===player.video))player.video=(choices.find(v=>typeof v.id==='string')||choices[0]).id;
+  if(!choices.some(v=>v.id===player.video))player.video=(choices.find(v=>typeof v.id==='string')||choices[0])?.id??null;
   return choices;
 }
 function updateVideoPreview(card,player){
   const video=card.querySelector('video');
   video.setAttribute('aria-label',videoLabel(player.video));
+  if(player.video===null){video.pause();video.removeAttribute('src');video.load();return}
   video.src=videoSrc(player.video);
   video.play().catch(()=>{});
 }
@@ -45,14 +84,16 @@ function refreshVideoChoices(card,player){
   const choices=ensureRoleVideo(player);
   const select=card.querySelector('select');
   select.replaceChildren(...choices.map(v=>{const option=document.createElement('option');option.value=v.id;option.textContent=v.label;return option}));
-  select.value=player.video;
+  select.disabled=choices.length===0;
+  if(!choices.length){const option=document.createElement('option');option.value='';option.textContent='動画なし';select.append(option)}
+  select.value=player.video??'';
   if(previous!==player.video)updateVideoPreview(card,player);
 }
 function videoSrc(n){return `media/${n}.mp4`}
-function videoLabel(n){return `${n}.mp4 の動画`}
+function videoLabel(n){return n===null?'動画なし':`${n}.mp4 の動画`}
 function icon(role){return `<svg class="role-icon" viewBox="0 0 24 24" aria-label="${roleNames[role]}" role="img"><path d="${paths[role]}"></path></svg>`}
-function makeVideo(n,cls){const v=document.createElement('video');v.className=cls;v.src=videoSrc(n);v.muted=true;v.loop=true;v.playsInline=true;v.preload='auto';v.autoplay=true;v.setAttribute('aria-label',videoLabel(n));return v}
-state.players.forEach((p,i)=>{const card=document.createElement('article');card.className='player-card';card.innerHTML=`<div class="card-head"><span class="slot-letter">${letters[i]}</span><span>PLAYER ${String(i+1).padStart(2,'0')}</span></div><div class="video-slot"></div><div class="card-fields"><label>${letters[i]} name<input type="text" maxlength="40" aria-label="${letters[i]} name"></label><label>${letters[i]} mov<select aria-label="${letters[i]} mov">${choicesForRole(p.role).map(v=>`<option value="${v.id}">${v.label}</option>`).join('')}</select></label><label>ロール<select class="role-select" aria-label="${letters[i]} ロール">${Object.entries(roleNames).map(([v,n])=>`<option value="${v}">${n}</option>`).join('')}</select></label></div>`;card.querySelector('.video-slot').append(makeVideo(p.video,'mini-video'));const name=card.querySelector('input');name.value=p.name;name.addEventListener('input',()=>p.name=name.value);const selects=card.querySelectorAll('select');selects[0].value=p.video;selects[0].addEventListener('change',()=>{const selected=choicesForRole(p.role).find(v=>String(v.id)===selects[0].value);if(!selected)return;p.video=selected.id;updateVideoPreview(card,p)});selects[1].value=p.role;selects[1].addEventListener('change',()=>{p.role=selects[1].value;refreshVideoChoices(card,p)});$(i<5?'#top-inputs':'#bottom-inputs').append(card)});
+function makeVideo(n,cls){const v=document.createElement('video');v.className=cls;if(n!==null)v.src=videoSrc(n);v.muted=true;v.loop=true;v.playsInline=true;v.preload='auto';v.autoplay=true;v.setAttribute('aria-label',videoLabel(n));return v}
+state.players.forEach((p,i)=>{const card=document.createElement('article');card.className='player-card';card.innerHTML=`<div class="card-head"><span class="slot-letter">${letters[i]}</span><span>PLAYER ${String(i+1).padStart(2,'0')}</span></div><div class="video-slot"></div><div class="card-fields"><label>${letters[i]} name<input type="text" maxlength="40" aria-label="${letters[i]} name"></label><label>${letters[i]} mov<select aria-label="${letters[i]} mov">${choicesForRole(p.role).map(v=>`<option value="${v.id}">${v.label}</option>`).join('')}</select></label><label>ロール<select class="role-select" aria-label="${letters[i]} ロール">${Object.entries(roleNames).map(([v,n])=>`<option value="${v}">${n}</option>`).join('')}</select></label></div>`;card.querySelector('.video-slot').append(makeVideo(p.video,'mini-video'));const name=card.querySelector('input');name.value=p.name;name.addEventListener('input',()=>p.name=name.value);const selects=card.querySelectorAll('select');refreshVideoChoices(card,p);selects[0].addEventListener('change',()=>{const selected=choicesForRole(p.role).find(v=>String(v.id)===selects[0].value);if(!selected)return;p.video=selected.id;updateVideoPreview(card,p)});selects[1].value=p.role;selects[1].addEventListener('change',()=>{p.role=selects[1].value;refreshVideoChoices(card,p)});$(i<5?'#top-inputs':'#bottom-inputs').append(card)});
 for(const side of ['left','right']){const letter=side==='left'?'L':'R';const container=$(`#${side}-team-form`);container.innerHTML=`<label class="upload-box"><span id="${side}-upload-preview">＋<br>アイコン</span><input type="file" accept="image/jpeg,image/png,image/webp" aria-label="${letter}チームアイコン画像"></label><div class="team-fields"><label>${letter} チーム名<input type="text" maxlength="60" aria-label="${letter} チーム名"></label><p class="file-caption">JPG / PNG / WebP · 5MBまで</p><button class="remove-logo" type="button" hidden>画像を削除</button></div>`;if(state[side].logo){$(`#${side}-upload-preview`).replaceChildren(state[side].logo.cloneNode());container.querySelector('.remove-logo').hidden=false}const input=container.querySelector('input[type=text]');input.value=state[side].name;input.addEventListener('input',()=>state[side].name=input.value);const file=container.querySelector('input[type=file]');let uploadRevision=0;file.addEventListener('change',async()=>{const f=file.files[0];if(!f)return;const revision=++uploadRevision;if(!['image/jpeg','image/png','image/webp'].includes(f.type)||f.size>5*1024*1024){notify('5MB以下のJPG・PNG・WebP画像を選択してください。');file.value='';return}const url=URL.createObjectURL(f);try{const image=new Image();image.src=url;await image.decode();if(revision!==uploadRevision)return;if(state[side].logo?.src.startsWith('blob:'))URL.revokeObjectURL(state[side].logo.src);state[side].logo=image;const preview=$(`#${side}-upload-preview`);preview.replaceChildren(image.cloneNode());container.querySelector('.remove-logo').hidden=false}catch{URL.revokeObjectURL(url);notify('画像を読み込めませんでした。別の画像を選択してください。')}finally{file.value=''}});container.querySelector('.remove-logo').addEventListener('click',()=>{uploadRevision++;if(state[side].logo?.src.startsWith('blob:'))URL.revokeObjectURL(state[side].logo.src);state[side].logo=null;$(`#${side}-upload-preview`).innerHTML='＋<br>アイコン';container.querySelector('.remove-logo').hidden=true});const score=$(`#${side}-score`);score.innerHTML=Array.from({length:11},(_,n)=>`<option value="${n}">${n}</option>`).join('');score.value=state[side].score;score.addEventListener('change',()=>state[side].score=Number(score.value))}
 function renderOutput(){for(const row of ['#top-output','#bottom-output'])$(row).replaceChildren();state.players.forEach((p,i)=>{const card=document.createElement('div');card.className='output-player';const plate=document.createElement('div');plate.className='nameplate';plate.innerHTML=icon(p.role);const name=document.createElement('span');name.className='player-name';name.textContent=p.name||letters[i];plate.append(name);const video=makeVideo(p.video,'output-video');if(i<5)card.append(video,plate);else card.append(plate,video);$(i<5?'#top-output':'#bottom-output').append(card)});for(const side of ['left','right']){$(`#${side}-title`).textContent=state[side].name||`${side==='left'?'LEFT':'RIGHT'} TEAM`;$(`#${side}-result`).textContent=state[side].score;const logo=$(`#${side}-logo`);logo.replaceChildren();if(state[side].logo)logo.append(state[side].logo.cloneNode());else logo.textContent=side==='left'?'L':'R'}resizeStage()}
 function resizeStage(){const shell=$('#stage-shell');const scale=Math.min(shell.clientWidth/1920,shell.clientHeight/1080);$('#stage').style.transform=`translate(-50%, -50%) scale(${scale})`}
