@@ -8,18 +8,13 @@ const paths={damage:'M3 3h4v15H3zM10 3h4v15h-4zM17 3h4v15h-4zM3 20h4v3H3zM10 20h
 const defaultLeftLogo=new Image();
 defaultLeftLogo.src='images/ossanwatch.png';
 defaultLeftLogo.alt='Ossan Watch チームアイコン';
-const state={players:defaults.map((name,i)=>({name,video:i===7?'tr':i===8?'zen':i+1,role:roles[i%5]})),left:{name:'Ossan Watch',score:0,logo:defaultLeftLogo},right:{name:'team 2',score:1,logo:null}};
+const state={players:defaults.map((name,i)=>({name,video:({tank:'JunkerQueen',damage:'may',support:'ana2'})[roles[i%5]],role:roles[i%5]})),left:{name:'Ossan Watch',score:0,logo:defaultLeftLogo},right:{name:'team 2',score:1,logo:null}};
 let noticeTimer;
 function notify(message){$('#notice').textContent=message;$('#notice').classList.add('visible');clearTimeout(noticeTimer);noticeTimer=setTimeout(()=>$('#notice').classList.remove('visible'),4500)}
 // 動画の追加: media/に「id.mp4」を置き、この一覧にroles付きで1行追加します。
 const videoChoices = [
-  ...Array.from({length:10},(_,i)=>({id:i+1,label:`${i+1}.mp4 — 数字 ${i+1}`,roles:['tank','damage','support']})),
-  {id:'ana', label:'ana.mp4', roles:['support']},
   {id:'ana2', label:'ana2.mp4', roles:['support']},
   {id:'may', label:'may.mp4', roles:['damage']},
-  {id:'qe', label:'qe.mp4', roles:['tank']},
-  {id:'tr', label:'tr.mp4', roles:['damage']},
-  {id:'zen', label:'zen.mp4', roles:['support']},
   {id:'domina', label:'domina.mp4', roles:['tank']},
   {id:'DVa', label:'DVa.mp4', roles:['tank']},
   {id:'Hazard', label:'Hazard.mp4', roles:['tank']},
