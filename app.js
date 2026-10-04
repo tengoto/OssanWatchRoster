@@ -1,7 +1,7 @@
 'use strict';
 const $=s=>document.querySelector(s);
 const letters='ABCDEFGHIJ';
-const defaults=['SUPREME','GENTLE','DRMIRRA','JINN','ASTAR','Super','LIP','Proper','JJoNak','Viol2t'];
+const defaults=['SUPREME','GENTLE','DRMIRRA','JINN','ASTAR','Super','LIP','選手8','JJoNak','選手10'];
 const roles=['tank','damage','damage','support','support'];
 const roleNames={damage:'ダメージ',tank:'タンク',support:'サポート'};
 const paths={damage:'M3 3h4v15H3zM10 3h4v15h-4zM17 3h4v15h-4zM3 20h4v3H3zM10 20h4v3h-4zM17 20h4v3h-4z',tank:'M12 1 22 5v9c0 5-10 10-10 10S2 19 2 14V5z',support:'M8 2h8v6h6v8h-6v6H8v-6H2V8h6z'};
