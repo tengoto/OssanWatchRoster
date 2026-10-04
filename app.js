@@ -20,6 +20,18 @@ const videoChoices = [
   {id:'qe', label:'qe.mp4', roles:['tank']},
   {id:'tr', label:'tr.mp4', roles:['damage']},
   {id:'zen', label:'zen.mp4', roles:['support']},
+  {id:'domina', label:'domina.mp4', roles:['tank']},
+  {id:'DVa', label:'DVa.mp4', roles:['tank']},
+  {id:'Hazard', label:'Hazard.mp4', roles:['tank']},
+  {id:'JunkerQueen', label:'JunkerQueen.mp4', roles:['tank']},
+  {id:'Orisa', label:'Orisa.mp4', roles:['tank']},
+  {id:'Ramattra', label:'Ramattra.mp4', roles:['tank']},
+  {id:'Reinhardt', label:'Reinhardt.mp4', roles:['tank']},
+  {id:'Roadhog', label:'Roadhog.mp4', roles:['tank']},
+  {id:'Sigma', label:'Sigma.mp4', roles:['tank']},
+  {id:'Winston', label:'Winston.mp4', roles:['tank']},
+  {id:'WreckingBall', label:'WreckingBall.mp4', roles:['tank']},
+  {id:'Zarya', label:'Zarya.mp4', roles:['tank']},
 ];
 function choicesForRole(role){return videoChoices.filter(v=>v.roles.includes(role))}
 function ensureRoleVideo(player){
