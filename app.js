@@ -15,6 +15,7 @@ function notify(message){$('#notice').textContent=message;$('#notice').classList
 const videoChoices = [
   ...Array.from({length:10},(_,i)=>({id:i+1,label:`${i+1}.mp4 — 数字 ${i+1}`,roles:['tank','damage','support']})),
   {id:'ana', label:'ana.mp4', roles:['support']},
+  {id:'ana2', label:'ana2.mp4', roles:['support']},
   {id:'may', label:'may.mp4', roles:['damage']},
   {id:'qe', label:'qe.mp4', roles:['tank']},
   {id:'tr', label:'tr.mp4', roles:['damage']},
