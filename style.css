@@ -11,3 +11,10 @@ body.output-mode>.topbar{display:none}
 #back{min-width:180px;min-height:48px}
 
 .input-guide{margin:0;font-size:16px;line-height:1.7;color:#f5f6fa}
+
+.player-upload{display:block;position:relative;cursor:pointer}
+.player-upload input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.player-upload:focus-within{outline:2px solid #e7f78b;outline-offset:-2px}
+.video-slot{display:block}
+.video-slot video,.video-slot img{pointer-events:none}
+.remove-player-image{font-size:12px;padding:6px 8px;justify-self:start}
