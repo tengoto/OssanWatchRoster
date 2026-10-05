@@ -8,7 +8,10 @@ const paths={damage:'M3 3h4v15H3zM10 3h4v15h-4zM17 3h4v15h-4zM3 20h4v3H3zM10 20h
 const defaultLeftLogo=new Image();
 defaultLeftLogo.src='images/ossanwatch.png';
 defaultLeftLogo.alt='Ossan Watch チームアイコン';
-const state={players:defaults.map((name,i)=>({name,image:null,video:i<5?['Mauga','Cassidy','Junkrat','JetpackCat','Kiriko'][i]:['Reinhardt','Widowmaker','Tracer','Zenyatta','Illari'][i-5],role:roles[i%5]})),left:{name:'Ossan Watch',score:0,logo:defaultLeftLogo},right:{name:'team 2',score:1,logo:null}};
+const defaultGentleImage=new Image();
+defaultGentleImage.src='images/GENTLE.png';
+defaultGentleImage.alt='GENTLEの画像';
+const state={players:defaults.map((name,i)=>({name,image:i===1?defaultGentleImage:null,video:i<5?['Mauga','Cassidy','Junkrat','JetpackCat','Kiriko'][i]:['Reinhardt','Widowmaker','Tracer','Zenyatta','Illari'][i-5],role:roles[i%5]})),left:{name:'Ossan Watch',score:0,logo:defaultLeftLogo},right:{name:'team 2',score:1,logo:null}};
 let noticeTimer;
 function notify(message){$('#notice').textContent=message;$('#notice').classList.add('visible');clearTimeout(noticeTimer);noticeTimer=setTimeout(()=>$('#notice').classList.remove('visible'),4500)}
 // 動画の追加: media/に「id.mp4」を置き、この一覧にroles付きで1行追加します。
