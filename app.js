@@ -120,7 +120,7 @@ for(const side of ['left','right']){const letter=side==='left'?'L':'R';const con
 let backgroundUrl=null,backgroundRevision=0;
 const backgroundFile=$('#background-file');
 function updateBackground(){
-  $('#stage').style.backgroundImage=backgroundUrl?`url("${backgroundUrl}")`:'';
+  $('#stage-shell').style.backgroundImage=backgroundUrl?`url("${backgroundUrl}")`:'';
   const preview=$('#background-preview');
   preview.hidden=!backgroundUrl;
   if(backgroundUrl)preview.src=backgroundUrl;else preview.removeAttribute('src');

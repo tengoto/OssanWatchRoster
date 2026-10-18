@@ -24,5 +24,6 @@ body.output-mode>.topbar{display:none}
 .background-file{margin:16px 0;gap:10px}
 .background-file input{max-width:100%}
 #background-preview{width:240px;max-width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:6px}
-#stage{background-size:cover;background-position:center;background-repeat:no-repeat}
+#stage-shell{background-size:100% auto;background-position:center center;background-repeat:no-repeat}
+#stage{background:transparent}
 @media(max-width:560px){.background-settings{align-items:flex-start;flex-direction:column}}
