@@ -128,6 +128,12 @@ for(const side of ['left','right']){
   const container=$(`#${side}-colors`);
   container.className='team-color-panel';
   container.innerHTML=`<h2>${letter}チームの文字色</h2><p class="file-caption">選手名・チーム名に共通で適用</p><div class="color-controls"></div><p class="color-sample" aria-label="${letter}チームの文字色プレビュー">選手名 / チーム名</p>`;
+  const lineLabel=document.createElement('label');lineLabel.className='score-line-setting';
+  lineLabel.innerHTML=`スコアの${side==='left'?'左':'右'}縦線の色<select aria-label="${letter}チーム スコア縦線の色"><option value="text">文字色</option><option value="outline">アウトライン色</option></select>`;
+  container.append(lineLabel);
+  const lineSelect=lineLabel.querySelector('select');
+  const updateLine=()=>$('#stage').style.setProperty(`--${side}-score-line-color`,`var(--${side}-${lineSelect.value}-color)`);
+  lineSelect.addEventListener('change',updateLine);updateLine();
   for(const [key,title,initial] of [['text','文字色','#FFFFFF'],['outline','アウトライン色','#000000']]){
     const group=document.createElement('fieldset');group.className='color-control';
     group.innerHTML=`<legend>${title}</legend><div class="color-code-row"><input type="color" aria-label="${letter}チーム ${title} カラーピッカー"><label>カラーコード<input type="text" maxlength="7" spellcheck="false" autocomplete="off" aria-label="${letter}チーム ${title} カラーコード" placeholder="#FFFFFF"></label></div><div class="rgb-sliders">${['R','G','B'].map(channel=>`<label>${channel}<input type="range" min="0" max="255" step="1" aria-label="${letter}チーム ${title} ${channel}"><output></output></label>`).join('')}</div>`;

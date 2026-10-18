@@ -47,3 +47,6 @@ body.output-mode>.topbar{display:none}
 #bottom-output .player-name,#right-title,#right-colors .color-sample{color:var(--right-text-color,#fff);-webkit-text-stroke:3px var(--right-outline-color,#000);paint-order:stroke fill}
 @media(max-width:900px){.team-colors{grid-template-columns:1fr}}
 @media(max-width:560px){.team-color-panel{padding:16px}.color-controls{grid-template-columns:1fr}}
+
+.score-line-setting{margin-top:16px;max-width:280px}
+.banner-score{border-left-color:var(--left-score-line-color,var(--left-text-color,#fff));border-right-color:var(--right-score-line-color,var(--right-text-color,#fff))}
