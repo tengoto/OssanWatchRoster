@@ -117,6 +117,42 @@ function icon(role){return `<svg class="role-icon" viewBox="0 0 24 24" aria-labe
 function makeVideo(n,cls){const v=document.createElement('video');v.className=cls;if(n!==null)v.src=videoSrc(n);v.muted=true;v.loop=true;v.playsInline=true;v.preload='auto';v.autoplay=true;v.setAttribute('aria-label',videoLabel(n));return v}
 state.players.forEach((p,i)=>{const card=document.createElement('article');card.className='player-card';card.innerHTML=`<div class="card-head"><span class="slot-letter">${letters[i]}</span><span>PLAYER ${String(i+1).padStart(2,'0')}</span></div><label class="player-upload"><span class="video-slot"></span><input type="file" accept="image/jpeg,image/png,image/webp" aria-label="${letters[i]} 選手画像"></label><div class="card-fields"><p class="file-caption">クリックで画像を選択 · 5MBまで</p><button class="remove-player-image" type="button" hidden>画像を削除して動画に戻す</button><label>${letters[i]} name<input type="text" maxlength="40" aria-label="${letters[i]} name"></label><label>${letters[i]} mov<select aria-label="${letters[i]} mov">${choicesForRole(p.role).map(v=>`<option value="${v.id}">${v.label}</option>`).join('')}</select></label><label>ロール<select class="role-select" aria-label="${letters[i]} ロール">${Object.entries(roleNames).map(([v,n])=>`<option value="${v}">${n}</option>`).join('')}</select></label></div>`;updateVideoPreview(card,p);bindPlayerImage(card,p);const name=card.querySelector('input[type=text]');name.value=p.name;name.addEventListener('input',()=>p.name=name.value);const selects=card.querySelectorAll('select');refreshVideoChoices(card,p);selects[0].addEventListener('change',()=>{const selected=choicesForRole(p.role).find(v=>String(v.id)===selects[0].value);if(!selected)return;p.video=selected.id;updateVideoPreview(card,p)});selects[1].value=p.role;selects[1].addEventListener('change',()=>{p.role=selects[1].value;refreshVideoChoices(card,p)});$(i<5?'#top-inputs':'#bottom-inputs').append(card)});
 for(const side of ['left','right']){const letter=side==='left'?'L':'R';const container=$(`#${side}-team-form`);container.innerHTML=`<label class="upload-box"><span id="${side}-upload-preview">＋<br>アイコン</span><input type="file" accept="image/jpeg,image/png,image/webp" aria-label="${letter}チームアイコン画像"></label><div class="team-fields"><label>${letter} チーム名<input type="text" maxlength="60" aria-label="${letter} チーム名"></label><p class="file-caption">JPG / PNG / WebP · 5MBまで</p><button class="remove-logo" type="button" hidden>画像を削除</button></div>`;if(state[side].logo){$(`#${side}-upload-preview`).replaceChildren(state[side].logo.cloneNode());container.querySelector('.remove-logo').hidden=false}const input=container.querySelector('input[type=text]');input.value=state[side].name;input.addEventListener('input',()=>state[side].name=input.value);const file=container.querySelector('input[type=file]');let uploadRevision=0;file.addEventListener('change',async()=>{const f=file.files[0];if(!f)return;const revision=++uploadRevision;if(!['image/jpeg','image/png','image/webp'].includes(f.type)||f.size>5*1024*1024){notify('5MB以下のJPG・PNG・WebP画像を選択してください。');file.value='';return}const url=URL.createObjectURL(f);try{const image=new Image();image.src=url;await image.decode();if(revision!==uploadRevision)return;if(state[side].logo?.src.startsWith('blob:'))URL.revokeObjectURL(state[side].logo.src);state[side].logo=image;const preview=$(`#${side}-upload-preview`);preview.replaceChildren(image.cloneNode());container.querySelector('.remove-logo').hidden=false}catch{URL.revokeObjectURL(url);notify('画像を読み込めませんでした。別の画像を選択してください。')}finally{file.value=''}});container.querySelector('.remove-logo').addEventListener('click',()=>{uploadRevision++;if(state[side].logo?.src.startsWith('blob:'))URL.revokeObjectURL(state[side].logo.src);state[side].logo=null;$(`#${side}-upload-preview`).innerHTML='＋<br>アイコン';container.querySelector('.remove-logo').hidden=true});const score=$(`#${side}-score`);score.innerHTML=Array.from({length:11},(_,n)=>`<option value="${n}">${n}</option>`).join('');score.value=state[side].score;score.addEventListener('change',()=>state[side].score=Number(score.value))}
+// 選手名とチーム名に共通の文字色・縁取り色。
+function normalizeColor(value){
+  const hex=value.trim().replace(/^#/,'');
+  if(/^[0-9a-f]{3}$/i.test(hex))return '#'+[...hex].map(c=>c+c).join('').toUpperCase();
+  return /^[0-9a-f]{6}$/i.test(hex)?'#'+hex.toUpperCase():null;
+}
+for(const side of ['left','right']){
+  const letter=side==='left'?'L':'R';
+  const container=$(`#${side}-colors`);
+  container.className='team-color-panel';
+  container.innerHTML=`<h2>${letter}チームの文字色</h2><p class="file-caption">選手名・チーム名に共通で適用</p><div class="color-controls"></div><p class="color-sample" aria-label="${letter}チームの文字色プレビュー">選手名 / チーム名</p>`;
+  for(const [key,title,initial] of [['text','文字色','#FFFFFF'],['outline','アウトライン色','#000000']]){
+    const group=document.createElement('fieldset');group.className='color-control';
+    group.innerHTML=`<legend>${title}</legend><div class="color-code-row"><input type="color" aria-label="${letter}チーム ${title} カラーピッカー"><label>カラーコード<input type="text" maxlength="7" spellcheck="false" autocomplete="off" aria-label="${letter}チーム ${title} カラーコード" placeholder="#FFFFFF"></label></div><div class="rgb-sliders">${['R','G','B'].map(channel=>`<label>${channel}<input type="range" min="0" max="255" step="1" aria-label="${letter}チーム ${title} ${channel}"><output></output></label>`).join('')}</div>`;
+    container.querySelector('.color-controls').append(group);
+    const picker=group.querySelector('input[type=color]');
+    const code=group.querySelector('input[type=text]');
+    const sliders=[...group.querySelectorAll('input[type=range]')];
+    const outputs=[...group.querySelectorAll('output')];
+    let current=initial;
+    function apply(value,writeCode=true){
+      current=value;picker.value=value;
+      if(writeCode)code.value=value;
+      code.removeAttribute('aria-invalid');
+      sliders.forEach((slider,i)=>{slider.value=parseInt(value.slice(1+i*2,3+i*2),16);outputs[i].value=slider.value});
+      const variable=`--${side}-${key}-color`;
+      $('#stage').style.setProperty(variable,value);
+      container.style.setProperty(variable,value);
+    }
+    picker.addEventListener('input',()=>apply(picker.value.toUpperCase()));
+    sliders.forEach(slider=>slider.addEventListener('input',()=>apply('#'+sliders.map(input=>Number(input.value).toString(16).padStart(2,'0')).join('').toUpperCase())));
+    code.addEventListener('input',()=>{const value=normalizeColor(code.value);if(value)apply(value,false);else code.setAttribute('aria-invalid','true')});
+    code.addEventListener('change',()=>{const value=normalizeColor(code.value);if(!value)notify('カラーコードは #FFFFFF のような6桁、または #FFF のような3桁で入力してください。');apply(value||current)});
+    apply(initial);
+  }
+}
 let backgroundUrl=null,backgroundRevision=0;
 const backgroundFile=$('#background-file');
 function updateBackground(){

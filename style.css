@@ -27,3 +27,23 @@ body.output-mode>.topbar{display:none}
 #stage-shell{background-size:100% auto;background-position:center center;background-repeat:no-repeat}
 #stage{background:transparent}
 @media(max-width:560px){.background-settings{align-items:flex-start;flex-direction:column}}
+
+.team-colors{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;margin-top:24px}
+.team-color-panel{padding:22px;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+.team-color-panel h2{font-size:16px;margin-bottom:8px}
+.color-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:16px}
+.color-control{min-width:0;margin:0;padding:12px;border:1px solid var(--line);border-radius:6px}
+.color-control legend{font-size:13px;padding:0 5px}
+.color-code-row{display:flex;gap:10px;align-items:end}
+.color-code-row label{flex:1;min-width:0}
+.color-code-row input[type=color]{width:40px;height:38px;flex-shrink:0;padding:2px;border:1px solid #3d424e;border-radius:5px;background:#101217;cursor:pointer}
+.rgb-sliders{display:grid;gap:10px;margin-top:16px}
+.rgb-sliders label{display:grid;grid-template-columns:12px minmax(0,1fr) 28px;align-items:center;gap:8px}
+.rgb-sliders input{width:100%;min-width:0;accent-color:#e7f78b}
+.rgb-sliders output{text-align:right;font-variant-numeric:tabular-nums}
+.color-control input[aria-invalid=true]{border-color:#f16b69}
+.color-sample{margin:16px 0 0;padding:12px;background:#333842;border-radius:6px;font-size:24px;font-weight:800}
+#top-output .player-name,#left-title,#left-colors .color-sample{color:var(--left-text-color,#fff);-webkit-text-stroke:3px var(--left-outline-color,#000);paint-order:stroke fill}
+#bottom-output .player-name,#right-title,#right-colors .color-sample{color:var(--right-text-color,#fff);-webkit-text-stroke:3px var(--right-outline-color,#000);paint-order:stroke fill}
+@media(max-width:900px){.team-colors{grid-template-columns:1fr}}
+@media(max-width:560px){.team-color-panel{padding:16px}.color-controls{grid-template-columns:1fr}}
