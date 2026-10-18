@@ -270,7 +270,7 @@ document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!$('#output
 function route(){const output=location.hash==='#output';closeReturnMenu();document.body.classList.toggle('output-mode',output);$('#editor').hidden=output;$('#output').hidden=!output;$('#edit-tab').classList.toggle('active',!output);$('#output-tab').classList.toggle('active',output);if(output)renderOutput();else $('#stage').querySelectorAll('video').forEach(v=>v.pause());$('#editor').querySelectorAll('video').forEach(v=>{if(output)v.pause();else v.play().catch(()=>{})});window.scrollTo(0,0)}
 window.addEventListener('hashchange',route);$('#generate').addEventListener('click',()=>location.hash='output');$('#back').addEventListener('click',()=>{closeReturnMenu();location.hash='edit'});
 if(document.modelContext?.registerTool){try{Promise.resolve(document.modelContext.registerTool({name:'configure_roster_player',description:'A〜Jの選手名と登録済みの動画を変更する。アップロード画像がある場合は画像の優先表示を維持する。',inputSchema:{type:'object',properties:{slot:{type:'string',enum:[...letters]},name:{type:'string',maxLength:40},video:{enum:videoChoices.map(v=>v.id)}},required:['slot','name','video'],additionalProperties:false},annotations:{readOnlyHint:false},execute(input){if(!input||!letters.includes(input.slot)||input.slot.length!==1||typeof input.name!=='string'||input.name.length>40||!videoChoices.some(v=>v.id===input.video))throw new Error('Invalid player input');const i=letters.indexOf(input.slot);if(!choicesForRole(state.players[i].role).some(v=>v.id===input.video))throw new Error('Video is not available for this role');Object.assign(state.players[i],{name:input.name,video:input.video});const card=document.querySelectorAll('.player-card')[i];card.querySelector('input[type=text]').value=input.name;card.querySelector('select').value=input.video;updateVideoPreview(card,state.players[i]);if(!$('#output').hidden)renderOutput();return {slot:input.slot,name:input.name,video:input.video}}})).catch(()=>{})}catch{}}
-// Initial names and colors from testkeep.json.
+// Initial names and colors from OssanWatchRoster-settings1019.json.
 const defaultRosterPreset={
   "format": "OssanWatchRoster",
   "version": 1,
@@ -284,7 +284,7 @@ const defaultRosterPreset={
     "G": "LIP",
     "H": "選手8",
     "I": "JJoNak",
-    "J": "moikka"
+    "J": "選手10"
   },
   "teams": {
     "left": "Ossan Watch",
@@ -292,15 +292,15 @@ const defaultRosterPreset={
   },
   "colors": {
     "left": {
-      "text": "#543DFF",
+      "text": "#000000",
       "outline": "#FFFFFF"
     },
     "right": {
-      "text": "#FF3838",
+      "text": "#FF8A05",
       "outline": "#FFFFFF"
     },
     "score": {
-      "text": "#000000",
+      "text": "#FFFFFF",
       "outline": "#000000"
     }
   },
