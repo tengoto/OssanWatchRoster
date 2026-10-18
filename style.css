@@ -51,5 +51,6 @@ body.output-mode>.topbar{display:none}
 .score-line-setting{margin-top:16px;max-width:280px}
 .banner-score{border-left-color:var(--left-score-line-color,var(--left-text-color,#fff));border-right-color:var(--right-score-line-color,var(--right-text-color,#fff))}
 
-/* Fade only the score backdrop; keep text and side borders opaque. */
-.banner-score::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(110deg,#30111555,transparent 40%,#211a4755);-webkit-mask-image:linear-gradient(to bottom,transparent 0%,#000 25%,#000 75%,transparent 100%);mask-image:linear-gradient(to bottom,transparent 0%,#000 25%,#000 75%,transparent 100%)}
+
+#score-colors{grid-column:1/-1}
+.banner-score>span,#score-colors .color-sample{color:var(--score-text-color,#fff);-webkit-text-stroke:3px var(--score-outline-color,#000);paint-order:stroke fill}
