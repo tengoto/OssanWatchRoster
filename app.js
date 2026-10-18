@@ -219,7 +219,7 @@ $('#load-preset').addEventListener('change',async event=>{
   }catch(error){if(revision===presetRevision)notify(error instanceof SyntaxError?'JSONファイルを読み込めませんでした。内容を確認してください。':error.message)}
   finally{if(revision===presetRevision)input.value=''}
 });
-let backgroundUrl=null,backgroundRevision=0;
+let backgroundUrl='images/white.png',backgroundRevision=0;
 const backgroundFile=$('#background-file');
 function updateBackground(){
   $('#stage-shell').style.backgroundImage=backgroundUrl?`url("${backgroundUrl}")`:'';
@@ -237,13 +237,13 @@ backgroundFile.addEventListener('change',async()=>{
     const image=new Image();image.src=url;await image.decode();
     if(revision!==backgroundRevision){URL.revokeObjectURL(url);return}
     const previous=backgroundUrl;backgroundUrl=url;updateBackground();
-    if(previous)URL.revokeObjectURL(previous);
+    if(previous?.startsWith('blob:'))URL.revokeObjectURL(previous);
   }catch{URL.revokeObjectURL(url);if(revision===backgroundRevision)notify('画像を読み込めませんでした。別の画像を選択してください。')}
   finally{if(revision===backgroundRevision)backgroundFile.value=''}
 });
 $('#remove-background').addEventListener('click',()=>{
   backgroundRevision++;const previous=backgroundUrl;backgroundUrl=null;updateBackground();
-  if(previous)URL.revokeObjectURL(previous);backgroundFile.value='';
+  if(previous?.startsWith('blob:'))URL.revokeObjectURL(previous);backgroundFile.value='';
 });
 function renderOutput(){for(const row of ['#top-output','#bottom-output'])$(row).replaceChildren();state.players.forEach((p,i)=>{const card=document.createElement('div');card.className='output-player';const plate=document.createElement('div');plate.className='nameplate';plate.innerHTML=icon(p.role);const name=document.createElement('span');name.className='player-name';name.textContent=p.name||letters[i];plate.append(name);const video=makePlayerMedia(p,'output-video');if(i<5)card.append(video,plate);else card.append(plate,video);$(i<5?'#top-output':'#bottom-output').append(card)});for(const side of ['left','right']){$(`#${side}-title`).textContent=state[side].name||`${side==='left'?'LEFT':'RIGHT'} TEAM`;$(`#${side}-result`).textContent=state[side].score;const logo=$(`#${side}-logo`);logo.replaceChildren();if(state[side].logo)logo.append(state[side].logo.cloneNode());else logo.textContent=side==='left'?'L':'R'}resizeStage()}
 function resizeStage(){const shell=$('#stage-shell');const scale=Math.min(shell.clientWidth/1920,shell.clientHeight/1080);$('#stage').style.transform=`translate(-50%, -50%) scale(${scale})`}
@@ -270,4 +270,45 @@ document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!$('#output
 function route(){const output=location.hash==='#output';closeReturnMenu();document.body.classList.toggle('output-mode',output);$('#editor').hidden=output;$('#output').hidden=!output;$('#edit-tab').classList.toggle('active',!output);$('#output-tab').classList.toggle('active',output);if(output)renderOutput();else $('#stage').querySelectorAll('video').forEach(v=>v.pause());$('#editor').querySelectorAll('video').forEach(v=>{if(output)v.pause();else v.play().catch(()=>{})});window.scrollTo(0,0)}
 window.addEventListener('hashchange',route);$('#generate').addEventListener('click',()=>location.hash='output');$('#back').addEventListener('click',()=>{closeReturnMenu();location.hash='edit'});
 if(document.modelContext?.registerTool){try{Promise.resolve(document.modelContext.registerTool({name:'configure_roster_player',description:'A〜Jの選手名と登録済みの動画を変更する。アップロード画像がある場合は画像の優先表示を維持する。',inputSchema:{type:'object',properties:{slot:{type:'string',enum:[...letters]},name:{type:'string',maxLength:40},video:{enum:videoChoices.map(v=>v.id)}},required:['slot','name','video'],additionalProperties:false},annotations:{readOnlyHint:false},execute(input){if(!input||!letters.includes(input.slot)||input.slot.length!==1||typeof input.name!=='string'||input.name.length>40||!videoChoices.some(v=>v.id===input.video))throw new Error('Invalid player input');const i=letters.indexOf(input.slot);if(!choicesForRole(state.players[i].role).some(v=>v.id===input.video))throw new Error('Video is not available for this role');Object.assign(state.players[i],{name:input.name,video:input.video});const card=document.querySelectorAll('.player-card')[i];card.querySelector('input[type=text]').value=input.name;card.querySelector('select').value=input.video;updateVideoPreview(card,state.players[i]);if(!$('#output').hidden)renderOutput();return {slot:input.slot,name:input.name,video:input.video}}})).catch(()=>{})}catch{}}
+// Initial names and colors from testkeep.json.
+const defaultRosterPreset={
+  "format": "OssanWatchRoster",
+  "version": 1,
+  "players": {
+    "A": "SUPREME",
+    "B": "GENTLE",
+    "C": "DRMIRRA",
+    "D": "JINN",
+    "E": "ASTAR",
+    "F": "Super",
+    "G": "LIP",
+    "H": "選手8",
+    "I": "JJoNak",
+    "J": "moikka"
+  },
+  "teams": {
+    "left": "Ossan Watch",
+    "right": "team 2"
+  },
+  "colors": {
+    "left": {
+      "text": "#543DFF",
+      "outline": "#FFFFFF"
+    },
+    "right": {
+      "text": "#FF3838",
+      "outline": "#FFFFFF"
+    },
+    "score": {
+      "text": "#000000",
+      "outline": "#000000"
+    }
+  },
+  "scoreLines": {
+    "left": "text",
+    "right": "text"
+  }
+};
+applyRosterPreset(defaultRosterPreset);
+updateBackground();
 route();
