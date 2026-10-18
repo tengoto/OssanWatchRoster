@@ -18,3 +18,11 @@ body.output-mode>.topbar{display:none}
 .video-slot{display:block}
 .video-slot video,.video-slot img{pointer-events:none}
 .remove-player-image{font-size:12px;padding:6px 8px;justify-self:start}
+
+.background-settings{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-top:24px;padding:22px;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+.background-settings h2{font-size:16px;margin-bottom:10px}
+.background-file{margin:16px 0;gap:10px}
+.background-file input{max-width:100%}
+#background-preview{width:240px;max-width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:6px}
+#stage{background-size:cover;background-position:center;background-repeat:no-repeat}
+@media(max-width:560px){.background-settings{align-items:flex-start;flex-direction:column}}
