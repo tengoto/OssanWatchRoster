@@ -123,6 +123,7 @@ function normalizeColor(value){
   if(/^[0-9a-f]{3}$/i.test(hex))return '#'+[...hex].map(c=>c+c).join('').toUpperCase();
   return /^[0-9a-f]{6}$/i.test(hex)?'#'+hex.toUpperCase():null;
 }
+const colorSetters={},lineSetters={};
 for(const side of ['left','right','score']){
   const label=side==='score'?'中央スコア':(side==='left'?'L':'R')+'チーム';
   const container=$(`#${side}-colors`);
@@ -134,6 +135,7 @@ for(const side of ['left','right','score']){
   container.append(lineLabel);
   const lineSelect=lineLabel.querySelector('select');
   const updateLine=()=>$('#stage').style.setProperty(`--${side}-score-line-color`,`var(--${side}-${lineSelect.value}-color)`);
+  lineSetters[side]=value=>{lineSelect.value=value;updateLine()};
   lineSelect.addEventListener('change',updateLine);updateLine();
   }
   for(const [key,title,initial] of [['text','文字色','#FFFFFF'],['outline','アウトライン色','#000000']]){
@@ -158,9 +160,65 @@ for(const side of ['left','right','score']){
     sliders.forEach(slider=>slider.addEventListener('input',()=>apply('#'+sliders.map(input=>Number(input.value).toString(16).padStart(2,'0')).join('').toUpperCase())));
     code.addEventListener('input',()=>{const value=normalizeColor(code.value);if(value)apply(value,false);else code.setAttribute('aria-invalid','true')});
     code.addEventListener('change',()=>{const value=normalizeColor(code.value);if(!value)notify('カラーコードは #FFFFFF のような6桁、または #FFF のような3桁で入力してください。');apply(value||current)});
+    colorSetters[`${side}-${key}`]=apply;
     apply(initial);
   }
 }
+// Portable name/color presets. Validate everything before changing the current roster.
+function validateRosterPreset(data){
+  const fail=()=>{throw new Error('設定ファイルの形式が正しくありません。')};
+  const object=value=>value!==null&&typeof value==='object'&&!Array.isArray(value);
+  if(!object(data)||data.format!=='OssanWatchRoster'||data.version!==1||!object(data.players)||!object(data.teams)||!object(data.colors)||!object(data.scoreLines))fail();
+  const result={format:'OssanWatchRoster',version:1,players:{},teams:{},colors:{},scoreLines:{}};
+  for(const letter of letters){const name=data.players[letter];if(typeof name!=='string'||name.length>40)fail();result.players[letter]=name}
+  for(const side of ['left','right']){
+    if(typeof data.teams[side]!=='string'||data.teams[side].length>60)fail();
+    result.teams[side]=data.teams[side];
+    if(!['text','outline'].includes(data.scoreLines[side]))fail();
+    result.scoreLines[side]=data.scoreLines[side];
+  }
+  for(const side of ['left','right','score']){
+    if(!object(data.colors[side]))fail();result.colors[side]={};
+    for(const key of ['text','outline']){
+      const value=data.colors[side][key];
+      if(typeof value!=='string'||!/^#[0-9a-f]{6}$/i.test(value))fail();
+      result.colors[side][key]=value.toUpperCase();
+    }
+  }
+  return result;
+}
+function collectRosterPreset(){
+  const data={format:'OssanWatchRoster',version:1,players:Object.fromEntries(state.players.map((p,i)=>[letters[i],p.name])),teams:{left:state.left.name,right:state.right.name},colors:{},scoreLines:{}};
+  for(const side of ['left','right','score']){
+    data.colors[side]={};
+    for(const key of ['text','outline'])data.colors[side][key]=$('#stage').style.getPropertyValue(`--${side}-${key}-color`).trim().toUpperCase();
+  }
+  for(const side of ['left','right'])data.scoreLines[side]=$(`#${side}-colors .score-line-setting select`).value;
+  return validateRosterPreset(data);
+}
+function applyRosterPreset(data){
+  const preset=validateRosterPreset(data);
+  const cards=document.querySelectorAll('.player-card');
+  state.players.forEach((player,i)=>{player.name=preset.players[letters[i]];cards[i].querySelector('input[type=text]').value=player.name;const image=cards[i].querySelector('.video-slot img');if(image)image.alt=`${player.name}の画像`});
+  for(const side of ['left','right']){state[side].name=preset.teams[side];$(`#${side}-team-form input[type=text]`).value=preset.teams[side];lineSetters[side](preset.scoreLines[side])}
+  for(const side of ['left','right','score'])for(const key of ['text','outline'])colorSetters[`${side}-${key}`](preset.colors[side][key]);
+  if(!$('#output').hidden)renderOutput();
+}
+$('#save-preset').addEventListener('click',()=>{
+  const url=URL.createObjectURL(new Blob([JSON.stringify(collectRosterPreset(),null,2)+'\n'],{type:'application/json'}));
+  const link=document.createElement('a');link.href=url;link.download='OssanWatchRoster-settings.json';document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+});
+let presetRevision=0;
+$('#load-preset').addEventListener('change',async event=>{
+  const input=event.target,file=input.files[0];if(!file)return;const revision=++presetRevision;
+  try{
+    if(file.size>1024*1024)throw new Error('設定ファイルは1MB以下にしてください。');
+    const text=await file.text();if(revision!==presetRevision)return;
+    applyRosterPreset(JSON.parse(text.replace(/^\uFEFF/,'')));
+    notify('選手名・チーム名・色の設定を読み込みました。');
+  }catch(error){if(revision===presetRevision)notify(error instanceof SyntaxError?'JSONファイルを読み込めませんでした。内容を確認してください。':error.message)}
+  finally{if(revision===presetRevision)input.value=''}
+});
 let backgroundUrl=null,backgroundRevision=0;
 const backgroundFile=$('#background-file');
 function updateBackground(){

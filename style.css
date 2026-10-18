@@ -54,3 +54,8 @@ body.output-mode>.topbar{display:none}
 
 #score-colors{grid-column:1/-1}
 .banner-score>span,#score-colors .color-sample{color:var(--score-text-color,#fff);-webkit-text-stroke:3px var(--score-outline-color,#000);paint-order:stroke fill}
+
+.preset-settings{padding:20px;margin-bottom:24px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+.preset-settings h2{font-size:16px;margin-bottom:8px}
+.preset-actions{display:flex;gap:20px;align-items:center;flex-wrap:wrap;margin-top:16px}
+.preset-actions input{max-width:100%}
